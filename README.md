@@ -1,3 +1,7 @@
+Req-2: Edison Julian Leon | 202021373 | e.leonc@uniandes.edu.co 
+
+Req-3: Julio Mario Rodriguez | 202020236 | jm.rodriguezc1@unaindes.edu.co
+
 #ISIS1225 - Librerias de soporte
 
 Este proyecto contiene los Tipos abstractos de datos, estructuras de datos y algoritmos requeridos por el curso ISIS1225-Estructuras de Datos y Algoritmos
