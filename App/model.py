@@ -29,13 +29,15 @@ import config as cf
 from DISClib.ADT import list as lt
 from DISClib.ADT import map as mp
 from DISClib.DataStructures import mapentry as me
-from DISClib.Algorithms.Sorting import shellsort as sa
+from DISClib.Algorithms.Sorting import mergesort as merg
+import time as time
 assert cf
 
 """
 Se define la estructura de un catálogo de videos. El catálogo tendrá dos listas, una para los videos, otra para las categorias de
 los mismos.
 """
+
 
 def newLinkedCatalog():
     catalog = {'videos': None,
@@ -121,13 +123,15 @@ def FindTrendVideoByCountry(catalog, country):
     result = FindTrendiestVideo(sorted_final_list)
     return result
 
-def FindTrendVideoByCategory(catalog,category):
-    paramater=getCategory_ID(catalog,category)
+
+def FindTrendVideoByCategory(catalog, category):
+    paramater = getCategory_ID(catalog, category)
     for element in catalog["videos"]:
         if element["category_ID"] == catalog["videos"]["category_ID"] and element["category_ID"] != paramater:
             lt.deleteElement(element)
-    most=FindTrendiestVideo(catalog)
-return most
+    most = FindTrendiestVideo(catalog)
+    return most
+
 
 def FindTrendiestVideo(catalog):
     i = 1
@@ -199,20 +203,11 @@ def cmpVideosByVideoID(video1, video2):
 # Funciones de ordenamiento
 
 
-def sortVideos(catalog, size, alg):
+def sortVideos(catalog, size):
     sub_list = lt.subList(catalog['videos'], 1, size)
     sub_list = sub_list.copy()
     start_time = time.process_time()
-    if alg == 1:
-        sorted_list = sa.sort(sub_list, cmpVideosByViews)
-    elif alg == 2:
-        sorted_list = sel.sort(sub_list, cmpVideosByViews)
-    elif alg == 3:
-        sorted_list = ins.sort(sub_list, cmpVideosByViews)
-    elif alg == 4:
-        sorted_list = merg.sort(sub_list, cmpVideosByViews)
-    else:
-        sorted_list = quick.sort(sub_list, cmpVideosByViews)
+    sorted_list = merg.sort(sub_list, cmpVideosByViews)
     stop_time = time.process_time()
     elapsed_time_mseg = (stop_time - start_time)*1000
     return elapsed_time_mseg, sorted_list

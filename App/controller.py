@@ -28,6 +28,8 @@ import csv
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
+
+
 def initLinkedCatalog():
     return model.newLinkedCatalog()
 
@@ -59,19 +61,20 @@ def loadCategoryID(catalog):
 # test
 
 
-def sortVideos(catalog, size, alg):
-    return model.sortVideos(catalog, size, alg)
+def sortVideos(catalog, size):
+    return model.sortVideos(catalog, size)
 
 # Funciones de consulta sobre el catálogo
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
     print(category_name, country)
-    return model.getVideosByCategoryAndCountry(catalog,category_name, country, numvid)
+    return model.getVideosByCategoryAndCountry(catalog, category_name, country, numvid)
 
 
 def FindTrendVideoByCountry(catalog, country):
     return model.FindTrendVideoByCountry(catalog, country)
 
-def FindTrendVideoByCategory(catalog,category):
-    return model.FindTrendCategoryByCountry(catalog,category)
+
+def FindTrendVideoByCategory(catalog, category):
+    return model.FindTrendCategoryByCountry(catalog, category)
