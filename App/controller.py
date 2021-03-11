@@ -28,11 +28,50 @@ import csv
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
+def initLinkedCatalog():
+    return model.newLinkedCatalog()
 
-# Inicialización del Catálogo de libros
 
 # Funciones para la carga de datos
 
+
+def loadData(catalog):
+    loadVideos(catalog)
+    loadCategoryID(catalog)
+
+
+def loadVideos(catalog):
+    videosfile = cf.data_dir + 'videos-small.csv'
+    input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
+    for video in input_file:
+        model.addVideo(catalog, video)
+
+
+def loadCategoryID(catalog):
+    categoryfile = cf.data_dir + 'category-id.csv'
+    input_file = csv.DictReader(open(categoryfile, encoding='utf-8'), delimiter='\t')
+    print(input_file)
+    for categ in input_file:
+        model.addCategory(catalog, categ)
+
+
 # Funciones de ordenamiento
+# test
+
+
+def sortVideos(catalog, size, alg):
+    return model.sortVideos(catalog, size, alg)
 
 # Funciones de consulta sobre el catálogo
+
+
+def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
+    print(category_name, country)
+    return model.getVideosByCategoryAndCountry(catalog,category_name, country, numvid)
+
+
+def FindTrendVideoByCountry(catalog, country):
+    return model.FindTrendVideoByCountry(catalog, country)
+
+def FindTrendVideoByCategory(catalog,category):
+    return model.FindTrendCategoryByCountry(catalog,category)
