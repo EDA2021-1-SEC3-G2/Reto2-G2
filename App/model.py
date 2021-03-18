@@ -43,14 +43,8 @@ def newLinkedCatalog():
     catalog = {'videos': None,
                'category': None}
     catalog['videos'] = lt.newList()
-    catalog['category'] = lt.newList('LINKED_LIST',
-                                     cmpfunction=comparecategories)
-
+    catalog['category'] = mp.newMap(30, maptype='CHAINING', loadfactor=0.5, comparefunction=comparecategories)
     return catalog
-
-
-def list_user(cantidad):
-    return 4
 
 
 # Funciones para agregar informacion al catalogo
@@ -67,7 +61,7 @@ def addCategory(catalog, category):
 
 # Funciones para creacion de datos
 def newCategory(name, id):
-    category = {'id': name, 'name': id}
+    category = me.newMapEntry(id, name)
     return category
 
 
@@ -79,7 +73,7 @@ def getCategory_ID(catalog, category_name):
     for element in categories["elements"]:
         if lt.isPresent(element["name"], category_name) != 0:
             pos = lt.isPresent(element["name"], category_name)
-        return categories['id'][pos]
+    return categories['id'][pos]
 
 
 def getFinalList(lis):
