@@ -27,6 +27,14 @@ from DISClib.ADT import list as lt
 assert cf
 
 
+"""
+La vista se encarga de la interacción con el usuario
+Presenta el menu de opciones y por cada seleccion
+se hace la solicitud al controlador para ejecutar la
+operación solicitada
+"""
+
+
 def printMenu():
     print("Bienvenido")
     print("1- Cargar los videos")
@@ -43,6 +51,10 @@ def initLinkedCatalog():
     return controller.initLinkedCatalog()
 
 
+def initArrayCatalog():
+    return controller.initArrayCatalog()
+
+
 def loadData(catalog):
     """
     carga los videos en la estructura de datos
@@ -53,23 +65,35 @@ def loadData(catalog):
 def GoodVideosByCategoryAndConuntry(compilation):
     """
     busca videos por categoria y país"""
-    size = lt.size(compilation)
-    if size:
-        for video in lt.iterator:
-            print("Día que fue trending: " + compilation["trending_date"] + "Nombre del video: " + compilation["title"]+"Canal: " + compilation["channel_title"])
-    else:
+    for element in range(1, number+1):
+        video = lt.getElement(compilation, element)
+        print(video["trending_date"]+"     "+video["title"]+"   "+video["channel_title"]+"   "+video["publish_time"]+"    "+video["views"]+"   "+video["likes"]+"    "+video["dislikes"])
+    if lt.isEmpty(compilation):
         print("No se encontraron videos")
+
+
+def TrendByCountry(info):
+    "utiliza la informacion de la tupla y la ordena para entregarla al usuario"
+    video = info[0]
+    days = info[1]
+    print(video["title"]+"   "+video["channel_title"]+"    "+video["country"]+"    "+str(days))
 
 
 def TrendByCategory(mosttrend):
     """video tendecia por categoría
     """
+    video = mosttrend[0]
+    days = mosttrend[1]
+    print(video["title"]+"   "+video["channel_title"]+"    "+video["country"]+"    "+str(days))
 
 
 def MostLikedVideos(mostliked):
     """
     videos con mas likes
     """
+    for element in range(1, lt.size(mostliked)+1):
+        video = lt.getElement(mostliked, element)
+        print(video["title"]+"   "+video["channel_title"]+"   "+video["publish_time"]+"    "+video["views"]+"   "+video["likes"]+"    "+video["dislikes"]+"    "+video["tags"])
 
 
 catalog = {}
@@ -82,7 +106,7 @@ while True:
     printMenu()
     inputs = input('Seleccione una opción para continuar\n')
     if int(inputs[0]) == 1:
-        catalog = initLinkedCatalog()
+        catalog = initArrayCatalog()
         loadData(catalog)
         print("Categorias cargadas: " + str(lt.size(catalog['category'])))
         print("Videos cargados: " + str(lt.size(catalog['videos'])))
@@ -90,30 +114,28 @@ while True:
         print("CATEGORIAS", end="\n\n")
         print(catalog['category'], end="\n\n")
         print("PRIMER VIDEO:", end="\n\n")
-        print(catalog["videos"]["first"]["info"]["title"]+catalog["videos"]["first"]["info"]["channel_title"]+catalog["videos"]["first"]["info"]["trending_date"]+catalog["videos"]["first"]["info"]["country"]+catalog["videos"]["first"]["info"]["views"]+catalog["videos"]["first"]["info"]["likes"]+catalog["videos"]["first"]["info"]["dislikes"])
-        print(catalog['videos'])
+        print(lt.getElement(catalog["videos"], 1))
     elif int(inputs[0]) == 2:
-        size = input("Indique tamaño de la muestra que desee: ")
-        result = controller.sortVideos(catalog, int(size))
-        print("Para la muestra de", size, " elementos, el tiempo (mseg) es: ",
-                                          str(result[0]))
         country = input("Ingrese el país: ")
         category = input("Ingrese la categoria: ")
-        number = input("cantidad de videos por listar: ")
+        number = int(input("cantidad de videos por listar: "))
         compilation = controller.getVideosByCategoryAndCountry(catalog, str(category), str(country), int(number))
         GoodVideosByCategoryAndConuntry(compilation)
     elif int(inputs[0]) == 3:
         country = input("Ingrese el país: ")
         mosttrend = controller.FindTrendVideoByCountry(catalog, country)
-        print(mosttrend)
-
+        TrendByCountry(mosttrend)
+        
     elif int(inputs[0]) == 4:
         category = input("Ingrese la categoria: ")
-        mosttrend = controller.TrendByCategory(catalog, category)
+        mosttrend = controller.FindTrendVideoByCategory(catalog, category)
         TrendByCategory(mosttrend)
 
     elif int(inputs[0]) == 5:
-        mostliked = controller.MostLikedVideos(catalog)
+        tag = input("Ingrese el tag de interés: ")
+        country = input("ingrese el país: ")
+        elements = input("Ingrese el numero de elementos a listar: ")
+        mostliked = controller.FindMostLikedByTag(catalog, tag, country, elements)
         MostLikedVideos(mostliked)
 
     else:

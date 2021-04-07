@@ -20,18 +20,22 @@
  * along withthis program.  If not, see <http://www.gnu.org/licenses/>.
  """
 
+import sys
 import config as cf
 import model
 import csv
-
+default_limit = 1000
+sys.setrecursionlimit(default_limit*10)
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
 """
 
+# Inicialización del Catálogo de libros
 
-def initLinkedCatalog():
-    return model.newLinkedCatalog()
+
+def initArrayCatalog():
+    return model.newArrayCatalog()
 
 
 # Funciones para la carga de datos
@@ -43,7 +47,7 @@ def loadData(catalog):
 
 
 def loadVideos(catalog):
-    videosfile = cf.data_dir + 'videos-small.csv'
+    videosfile = cf.data_dir + 'videos-large.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
@@ -61,8 +65,8 @@ def loadCategoryID(catalog):
 # test
 
 
-def sortVideos(catalog, size):
-    return model.sortVideos(catalog, size)
+def sortVideos(catalog, size, alg):
+    return model.sortVideos(catalog, size, alg)
 
 # Funciones de consulta sobre el catálogo
 
@@ -77,4 +81,8 @@ def FindTrendVideoByCountry(catalog, country):
 
 
 def FindTrendVideoByCategory(catalog, category):
-    return model.FindTrendCategoryByCountry(catalog, category)
+    return model.FindTrendVideoByCategory(catalog, category)
+
+
+def FindMostLikedByTag(catalog, tag, country, elements):
+    return model.FindMostLikedByTag(catalog, tag, country, elements)
