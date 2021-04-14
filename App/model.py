@@ -55,7 +55,7 @@ def newArrayCatalog():
     catalog = {'videos': None,
                'category': None}
     catalog['videos'] = lt.newList("ARRAY_LIST")
-    catalog['category'] = mp.newMap(30, maptype="CHAINING", loadfactor=0.5, comparefunction=comparecategories)
+    catalog['category'] = mp.newMap(30, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
 
     return catalog
 
@@ -73,8 +73,8 @@ def addVideo(catalog, video):
 
 def addCategory(catalog, category):
     c = newCategory(category['id'], category['name'])
-    lt.addLast(catalog['category'], c)
-
+    # lt.addLast(catalog['category'], c)
+    mp.put(catalog["category"], category["id"], c )
 
 # Funciones para creacion de datos
 def newCategory(name, id):
@@ -91,6 +91,8 @@ def getCategory_ID(catalog, category_name):
         element_1 = lt.getElement(categories, element)
         if ((element_1["name"]).strip(" ")).lower() == (category_name.strip(" ")).lower():
             return element_1["id"]
+
+
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
@@ -202,6 +204,14 @@ def FindMostLikedByTag(catalog, tag, country, elements):
         
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+def comparecategoriesmap(id, entry):
+    identry = me.getKey(entry)
+    if (int(id) == int(identry)):
+        return 0
+    elif (int(id) > int(identry)):
+        return 1
+    else:
+        return -1
 
 def comparecategories(name, category):
     return (name == category['name'])
