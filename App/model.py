@@ -24,8 +24,6 @@
  * Dario Correal - Version inicial
  """
 
-
-
 import sys
 import config as cf
 import time
@@ -96,20 +94,22 @@ def addCategory(catalog, category):
     lt.addLast(catalog['category'], c)
 
 
-# def addCategorymap(catalog, category):
-    # if mp.contains(catalog["category"], category["id"]) == False:
-        # mp.put(catalog["category"], category["id"], category["name"])
-    
 
-# Funciones para creacion de datos
+    
+# Se agrega un mapentry
+def addCategory(catalog, category):
+    if mp.contains(catalog["category"], me.getKey(category)) is False:
+        mp.put(catalog["category"], me.getKey(category), me.getValue(category))
+
+
+# Funciones para creacion de datos, se agerga un mapentry
 def newCategory(name, id):
-    category = {'id': name, 'name': id}
+    # category = {'id': name, 'name': id}
+    category = me.newMapEntry(id, name)
     return category
 
 
-# def newCategory(name, id):
-    # category = {'id': name, 'name': lt.newList(datastructure="SINGLE_LINKED", cmpfunction=cmpVideosByLikes)}
-    # return category
+
 
 
 # Funciones de consulta
@@ -117,12 +117,20 @@ def newCategory(name, id):
 
 def getCategory_ID(catalog, category_name):
     categories = catalog['category']
-    for element in range(1, lt.size(categories)+1):
-        element_1 = lt.getElement(categories, element)
-        if ((element_1["name"]).strip(" ")).lower() == (category_name.strip(" ")).lower():
-            return element_1["id"]
-
-
+    # Lista de los nombres de categoria
+    list1 = mp.valueSet(categories)
+    # Variable para el while
+    ver = True
+    i = 0
+    # El while te da la posicion en que estaria el nombre de la categoria (value)
+    while ver:
+        if category_name.lower() == list1[i]:
+            pos = i
+            ver = False
+        i += 1
+    # Esa posicion es la misma que el id de la categoria (key)
+    list2 = mp.keySet(categories)
+    return list2[pos]
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
@@ -132,13 +140,16 @@ def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
     
     videos = catalog['videos']
     templist = lt.newList()
+    sorted_videos = sortVideos(videos, 4)
     cat_id = getCategory_ID(catalog, category_name)
-    for video in range(1, lt.size(videos)+1):
-        element = lt.getElement(videos, video)
+    i = 1
+    for video in lt.iterator(videos):
+        element = lt.getElement(sorted_videos, video)
         if element["country"].lower() == country.lower() and cat_id == element["category_id"]:
             lt.addLast(templist, element)
-    mostviewedbycountandcat_1 = sortVideos(templist, 4)
-    return mostviewedbycountandcat_1
+            i += 1
+            if i == 4:
+                return templist
 
 
 def FindTrendVideoByCountry(catalog, country):
@@ -234,10 +245,11 @@ def FindMostLikedByTag(catalog, tag, country, elements):
         else:
             iterator += 1
     return user_list
-    
-        
+
 
 # Funciones utilizadas para comparar elementos dentro de una lista
+
+
 def comparecategoriesmap(id, entry):
     identry = me.getKey(entry)
     if (id == identry):
