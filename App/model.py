@@ -105,7 +105,7 @@ def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
     videos = catalog['videos']
     templist = lt.newList()
     cat_id = getCategory_ID(catalog, category_name)
-    for video in range(1, lt.size(videos)+1):
+    for video in lt.iterator(videos):
         element = lt.getElement(videos, video)
         if element["country"].lower() == country.lower() and cat_id == element["category_id"]:
             lt.addLast(templist, element)
