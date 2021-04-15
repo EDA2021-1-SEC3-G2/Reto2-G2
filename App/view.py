@@ -115,7 +115,7 @@ while True:
         print(catalog['category'], end="\n\n")
         print("PRIMER VIDEO:", end="\n\n")
         print(lt.getElement(catalog["videos"], 1))
-        
+
     elif int(inputs[0]) == 2:
         country = input("Ingrese el país: ")
         category = input("Ingrese la categoria: ")

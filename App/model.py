@@ -53,7 +53,10 @@ def newArrayCatalog():
     catalog = {'videos': None,
                'category': None}
     catalog['videos'] = lt.newList("ARRAY_LIST")
-    catalog['category'] = mp.newMap(37, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
+    catalog['category'] = mp.newMap(33, maptype="PROBING", loadfactor=0.5, comparefunction=comparecategoriesmap)
+    catalog["country"] = mp.newMap(30, maptype="CHAINING", loadfactor=5.0, comparefunction=compareCountrysByNameMap)
+
+    # catalog['category_id'] = mp.newMap(37, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
     return catalog
 
 
@@ -63,19 +66,40 @@ def list_user(cantidad):
 
 # Funciones para agregar informacion al catalogo
 
-
 def addVideo(catalog, video):
     lt.addLast(catalog['videos'], video)
+    addVideoCountry(catalog, video["country"], video)
 
 
+def newCountry(country):
+    country = {"country":country, 
+               "videos":lt.newList("SINGLE_LINKED", cmpVideosByCountry)}
+    return country
+
+
+def addVideoCountry(catalog, country, video):
+    countries = catalog["country"]
+    countryin = mp.contains(countries, country)
+    if countryin:
+        entry = mp.get(countries, country)
+        keycountry = me.getValue(entry)
+    else:
+        keycountry = newCountry(country)
+        mp.put(countries, country, keycountry)
+    lt.addLast(keycountry["videos"], video)
+
+
+# Se agrega un mapentry
 def addCategory(catalog, category):
-    if mp.contains(catalog["category"], category['id']) is False:
-        mp.put(catalog["category"], category['id'], category['name'])
+    if mp.contains(catalog["category"], category['name']) is False:
+        temp = newCategory(category['name'], category['id'])
+        mp.put(catalog["category"], me.getKey(temp), me.getValue(temp))
 
 
 # Funciones para creacion de datos, se agerga un mapentry
 def newCategory(name, id):
-    category = me.newMapEntry(id, name)
+    # category = {'id': name, 'name': id}
+    category = me.newMapEntry(name, id)
     return category
 
 
@@ -84,13 +108,14 @@ def newCategory(name, id):
 
 def getCategory_ID(catalog, category_name):
     categories = catalog['category']
-    for categ in lt.iterator(categories):
-        if category_name.lower() == me.getValue(mp.get(categories, key)):
-            pos = categ
-    return pos
+    pair = mp.get(categories, category_name)
+    result = me.getValue(pair)
+    return result
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
+    # tamaño = me.getValue(mp.get(catalog["country"], country))
+    # print(lt.size(tamaño))
     videos = catalog['videos']
     templist = lt.newList()
     # Organizo la lista por views para encontrar mas rapido los 4 mejores.
@@ -209,6 +234,20 @@ def comparecategoriesmap(id, entry):
     if (id == identry):
         return 0
     elif (id > identry):
+        return 1
+    else:
+        return -1
+
+
+def compareCountrysByNameMap(keyname, country):
+    """
+    Compara dos nombres de paises. El primero es una cadena
+    y el segundo un entry de un map
+    """
+    authentry = me.getKey(country)
+    if (keyname == authentry):
+        return 0
+    elif (keyname > authentry):
         return 1
     else:
         return -1

@@ -59,7 +59,7 @@ def loadCategoryID(catalog):
     print(input_file)
     for categ in input_file:
         model.addCategory(catalog, categ)
-
+        
 
 # Funciones de ordenamiento
 # test
