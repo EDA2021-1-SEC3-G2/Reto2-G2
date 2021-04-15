@@ -104,13 +104,16 @@ def getCategory_ID(catalog, category_name):
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
     videos = catalog['videos']
     templist = lt.newList()
+    sorted_videos = sortVideos(videos, 4)
     cat_id = getCategory_ID(catalog, category_name)
+    i = 1
     for video in lt.iterator(videos):
-        element = lt.getElement(videos, video)
+        element = lt.getElement(sorted_videos, video)
         if element["country"].lower() == country.lower() and cat_id == element["category_id"]:
             lt.addLast(templist, element)
-    mostviewedbycountandcat_1 = sortVideos(templist, 4)
-    return mostviewedbycountandcat_1
+            i += 1
+            if i == 4:
+                return templist
 
 
 def FindTrendVideoByCountry(catalog, country):
@@ -208,8 +211,9 @@ def FindMostLikedByTag(catalog, tag, country, elements):
     return user_list
 
 
-
 # Funciones utilizadas para comparar elementos dentro de una lista
+
+
 def comparecategoriesmap(id, entry):
     identry = me.getKey(entry)
     if (id == identry):
@@ -218,6 +222,7 @@ def comparecategoriesmap(id, entry):
         return 1
     else:
         return -1
+
 
 def comparecategories(name, category):
     return (name == category['name'])
