@@ -24,8 +24,6 @@
  * Dario Correal - Version inicial
  """
 
-
-
 import sys
 import config as cf
 import time
@@ -70,14 +68,15 @@ def addVideo(catalog, video):
     lt.addLast(catalog['videos'], video)
 
 
+# Se agrega un mapentry
 def addCategory(catalog, category):
-    if mp.contains(catalog["category"], category["id"]) == False:
-        mp.put(catalog["category"], category["id"], category["name"])
-    
+    if mp.contains(catalog["category"], me.getKey(category)) is False:
+        mp.put(catalog["category"], me.getKey(category), me.getValue(category))
 
-# Funciones para creacion de datos
+
+# Funciones para creacion de datos, se agerga un mapentry
 def newCategory(name, id):
-    category = {'id': name, 'name': lt.newList(datastructure="SINGLE_LINKED", cmpfunction=cmpVideosByLikes)}
+    category = me.newMapEntry(id, name)
     return category
 
 
