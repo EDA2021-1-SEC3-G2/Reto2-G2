@@ -23,8 +23,11 @@
 import config as cf
 import sys
 import controller
+from DISClib.ADT import map as mp
 from DISClib.ADT import list as lt
+from DISClib.DataStructures import mapentry as me
 assert cf
+
 
 
 """
@@ -91,8 +94,9 @@ def MostLikedVideos(mostliked):
     """
     videos con mas likes
     """
-    for element in range(1, lt.size(mostliked)+1):
+    for element in range(1, lt.size(mostliked)):
         video = lt.getElement(mostliked, element)
+        print("")
         print(video["title"]+"   "+video["channel_title"]+"   "+video["publish_time"]+"    "+video["views"]+"   "+video["likes"]+"    "+video["dislikes"]+"    "+video["tags"])
 
 
@@ -113,6 +117,7 @@ while True:
         # title, cannel_title, trending_date, country, views, likes, dislikes
         print("CATEGORIAS", end="\n\n")
         print(catalog['category'], end="\n\n")
+        # print(catalog["category_id"]))
         print("PRIMER VIDEO:", end="\n\n")
         print(lt.getElement(catalog["videos"], 1))
     elif int(inputs[0]) == 2:

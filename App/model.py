@@ -55,8 +55,7 @@ def newArrayCatalog():
     catalog = {'videos': None,
                'category': None}
     catalog['videos'] = lt.newList("ARRAY_LIST")
-    catalog['category'] = mp.newMap(30, maptype="CHAINING", loadfactor=0.5, comparefunction=comparecategories)
-
+    catalog['category'] = mp.newMap(37, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
     return catalog
 
 
@@ -72,13 +71,13 @@ def addVideo(catalog, video):
 
 
 def addCategory(catalog, category):
-    c = newCategory(category['id'], category['name'])
-    lt.addLast(catalog['category'], c)
-
+    if mp.contains(catalog["category"], category["id"]) == False:
+        mp.put(catalog["category"], category["id"], category["name"])
+    
 
 # Funciones para creacion de datos
 def newCategory(name, id):
-    category = {'id': name, 'name': id}
+    category = {'id': name, 'name': lt.newList(datastructure="SINGLE_LINKED", cmpfunction=cmpVideosByLikes)}
     return category
 
 
@@ -91,6 +90,8 @@ def getCategory_ID(catalog, category_name):
         element_1 = lt.getElement(categories, element)
         if ((element_1["name"]).strip(" ")).lower() == (category_name.strip(" ")).lower():
             return element_1["id"]
+
+
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
@@ -170,65 +171,6 @@ def FindTrendVideoByCategory(catalog, category_name):
     return final_element, days
 
 
-"""def FindTrendVideoByCategory(catalog, category):
-    paramater = getCategory_ID(catalog, category)
-    for element in catalog["videos"]:
-        if element["category_ID"] == catalog["videos"]["category_ID"] and element["category_ID"] != paramater:
-            lt.deleteElement(element)
-    most = FindTrendiestVideo(catalog)
-    return most"""
-
-# Estas funciones no las usé, deben tener similitud con lo que hice pero pues se me facilitó mas partir de 0. Si las quieres implementar igualemnte está bien.
-def FindTrendiestVideo(catalog):
-    i = 1
-    cont = 0
-    recount = 0
-    temppos = 0
-    videoid = lt.getElement(catalog, 1)['video_id']
-    while i <= lt.size(catalog):
-        if lt.getElement(catalog, i)['video_id'] == videoid:
-            cont += 1
-        else:
-            if cont > recount:
-                recount = cont
-                temppos = i - 1
-                videoid = lt.getElement(catalog, i)
-                cont = 1
-            else:
-                videoid = lt.getElement(catalog, i)
-                cont = 1
-        i += 1
-    result = lt.getElement(catalog, temppos)
-    final_result = {'title': result['title'], 'channel_title': result['channel_title'], 'country': result['country'], 'días': recount}
-    return final_result
-
-
-def FindPositionEndTrendingCountry(catalog, country, pos):
-    ver = True
-    endpos = 0
-    i = pos
-    print(i)
-    while ver:
-        if lt.getElement(catalog, i)['country'].lower() != country.lower():
-            endpos = i
-            ver = False
-        i += 1
-    sub_size = endpos - pos
-    return sub_size
-
-
-def FindPositionTrendingCountry(catalog, country):
-    ver = True
-    i = 1
-    pos = 0
-    while ver:
-        if lt.getElement(catalog, i)['country'].lower() == country.lower():
-            ver = False
-            pos = i
-        i += 1
-    return pos
-
-
 def FindMostLikedByTag(catalog, tag, country, elements):    
     videos = catalog["videos"]
     country_list = lt.newList("ARRAY_LIST")
@@ -242,35 +184,33 @@ def FindMostLikedByTag(catalog, tag, country, elements):
         video = lt.getElement(country_list, element)
         yes = video["tags"].split("|")
         for sub_element in yes:
-            if sub_element.find(tag) != -1:
+            if sub_element.lower().find(tag) != -1:
                 lt.addLast(tag_list, video)
     print(lt.size(tag_list))
     final_list = merg.sort(tag_list, cmpVideosByLikes)
-    user_list = lt.newList("ARRAY_LIST")
+    user_list = lt.newList("ARRAY_LIST", comparador_ascendente)
     lt.addFirst(user_list, lt.firstElement(final_list))
     iterator = 1
-    primero = lt.firstElement(final_list)["title"]
-    help_list = [primero]                                                                   # esto se hizo por que la operacion de lt.isPresent no funcionó.
-    while lt.size(user_list) < int(elements)+1 and iterator != lt.size(final_list):                  # la forma de hacerlo por la otra forma y usando TADlist lo adjunto al final de esta funcion.
+    while lt.size(user_list) < int(elements)+1 and iterator != lt.size(final_list):
         video = lt.getElement(final_list, iterator)
-        if video["title"] not in help_list:
-            help_list.append(video["title"])
+        if lt.isPresent(user_list, video) == 0:
             lt.addLast(user_list, video)
-        iterator += 1
+            iterator += 1
+        else:
+            iterator += 1
     return user_list
 
 
 
-
-"""while lt.size(user_list)<int(elements)+1 and iterator != lt.size(final_list):
-    video = lt.getElement(final_list, iterator)
-    if lt.isPresent(user_list, video) != 0:
-        iterator += 1
-    else:
-        lt.addLast(user_list)
-        iterator += 1"""
-
 # Funciones utilizadas para comparar elementos dentro de una lista
+def comparecategoriesmap(id, entry):
+    identry = me.getKey(entry)
+    if (id == identry):
+        return 0
+    elif (id > identry):
+        return 1
+    else:
+        return -1
 
 def comparecategories(name, category):
     return (name == category['name'])
@@ -290,6 +230,12 @@ def cmpVideosByVideoID(video1, video2):
 
 def cmpVideosByLikes(video1, video2):
     return (float(video1["likes"]) > float(video2["likes"])) 
+
+
+def comparador_ascendente(pos1, pos2):
+    if pos1["video_id"] != pos2["video_id"]:
+        return True
+    return False
 
 
 # Funciones de ordenamiento
