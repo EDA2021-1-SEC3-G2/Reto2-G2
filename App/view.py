@@ -25,6 +25,7 @@ import sys
 import controller
 from DISClib.ADT import map as mp
 from DISClib.ADT import list as lt
+from DISClib.DataStructures import mapentry as me
 assert cf
 
 
@@ -116,7 +117,7 @@ while True:
         # title, cannel_title, trending_date, country, views, likes, dislikes
         print("CATEGORIAS", end="\n\n")
         print(catalog['category'], end="\n\n")
-        print(mp.valueSet(catalog["category"]))
+        # print(catalog["category_id"]))
         print("PRIMER VIDEO:", end="\n\n")
         print(lt.getElement(catalog["videos"], 1))
     elif int(inputs[0]) == 2:

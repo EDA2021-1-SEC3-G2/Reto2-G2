@@ -55,8 +55,7 @@ def newArrayCatalog():
     catalog = {'videos': None,
                'category': None}
     catalog['videos'] = lt.newList("ARRAY_LIST")
-    catalog['category'] = mp.newMap(30, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
-
+    catalog['category'] = mp.newMap(37, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
     return catalog
 
 
@@ -72,13 +71,13 @@ def addVideo(catalog, video):
 
 
 def addCategory(catalog, category):
-    c = newCategory(category['id'], category['name'])
-    # lt.addLast(catalog['category'], c)
-    mp.put(catalog["category"], category["id"], c )
+    if mp.contains(catalog["category"], category["id"]) == False:
+        mp.put(catalog["category"], category["id"], category["name"])
+    
 
 # Funciones para creacion de datos
 def newCategory(name, id):
-    category = {'id': name, 'name': id}
+    category = {'id': name, 'name': lt.newList(datastructure="SINGLE_LINKED", cmpfunction=cmpVideosByLikes)}
     return category
 
 
@@ -206,9 +205,9 @@ def FindMostLikedByTag(catalog, tag, country, elements):
 # Funciones utilizadas para comparar elementos dentro de una lista
 def comparecategoriesmap(id, entry):
     identry = me.getKey(entry)
-    if (int(id) == int(identry)):
+    if (id == identry):
         return 0
-    elif (int(id) > int(identry)):
+    elif (id > identry):
         return 1
     else:
         return -1
