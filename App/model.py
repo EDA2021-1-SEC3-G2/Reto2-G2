@@ -258,8 +258,8 @@ def FindMostLikedByTag(catalog, tag, country, elements):
             lt.addLast(user_list, video)
         iterator += 1
     return user_list
-    
-        
+
+
 
 
 """while lt.size(user_list)<int(elements)+1 and iterator != lt.size(final_list):
