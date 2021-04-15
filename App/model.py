@@ -68,10 +68,9 @@ def addVideo(catalog, video):
     lt.addLast(catalog['videos'], video)
 
 
-# Se agrega un mapentry
 def addCategory(catalog, category):
-    if mp.contains(catalog["category"], me.getKey(category)) is False:
-        mp.put(catalog["category"], me.getKey(category), me.getValue(category))
+    if mp.contains(catalog["category"], category['id']) is False:
+        mp.put(catalog["category"], category['id'], category['name'])
 
 
 # Funciones para creacion de datos, se agerga un mapentry
@@ -91,8 +90,10 @@ def getCategory_ID(catalog, category_name):
     ver = True
     i = 0
     # El while te da la posicion en que estaria el nombre de la categoria (value)
+
+    for categ in lt.iterator(categories):
     while ver:
-        if category_name.lower() == list1[i]:
+        if category_name.lower() == lt.getElement(list1, i):
             pos = i
             ver = False
         i += 1
