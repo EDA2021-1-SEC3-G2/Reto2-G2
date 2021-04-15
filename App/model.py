@@ -104,9 +104,10 @@ def getCategory_ID(catalog, category_name):
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
     videos = catalog['videos']
     templist = lt.newList()
+    # Organizo la lista por views para encontrar mas rapido los 4 mejores.
     sorted_videos = sortVideos(videos, 4)
     cat_id = getCategory_ID(catalog, category_name)
-    i = 1
+    i = 0
     for video in lt.iterator(videos):
         element = lt.getElement(sorted_videos, video)
         if element["country"].lower() == country.lower() and cat_id == element["category_id"]:
