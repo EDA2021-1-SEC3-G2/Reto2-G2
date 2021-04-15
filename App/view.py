@@ -117,7 +117,7 @@ while True:
         # title, cannel_title, trending_date, country, views, likes, dislikes
         print("CATEGORIAS", end="\n\n")
         print(catalog['category'], end="\n\n")
-        # print(catalog["category_id"]))
+        # print(catalog["category_id"])
         print("PRIMER VIDEO:", end="\n\n")
         print(lt.getElement(catalog["videos"], 1))
     elif int(inputs[0]) == 2:
