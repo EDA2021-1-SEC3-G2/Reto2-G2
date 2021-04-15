@@ -55,6 +55,7 @@ def newArrayCatalog():
     catalog['videos'] = lt.newList("ARRAY_LIST")
     catalog['category'] = mp.newMap(33, maptype="PROBING", loadfactor=0.5, comparefunction=comparecategoriesmap)
     catalog["country"] = mp.newMap(30, maptype="CHAINING", loadfactor=5.0, comparefunction=compareCountrysByNameMap)
+    catalog["categories"] = mp.newMap(33,maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
 
     # catalog['category_id'] = mp.newMap(37, maptype="CHAINING", loadfactor=5.0, comparefunction=comparecategoriesmap)
     return catalog
@@ -68,14 +69,15 @@ def list_user(cantidad):
 
 def addVideo(catalog, video):
     lt.addLast(catalog['videos'], video)
-    addVideoCountry(catalog, video["country"], video)
+    addVideoCountry(catalog, video["country"].strip().lower(), video)
+    addVideoCategoryMap(catalog, video["category_id"], video)
 
 
-def newCountry(country):
-    country = {"country":country, 
-               "videos":lt.newList("SINGLE_LINKED", cmpVideosByCountry)}
-    return country
-
+# Se agrega un mapentry
+def addCategory(catalog, category):
+    if mp.contains(catalog["category"], category['name']) is False:
+        temp = newCategory(category['name'], category['id'])
+        mp.put(catalog["category"], me.getKey(temp), me.getValue(temp))
 
 def addVideoCountry(catalog, country, video):
     countries = catalog["country"]
@@ -88,19 +90,32 @@ def addVideoCountry(catalog, country, video):
         mp.put(countries, country, keycountry)
     lt.addLast(keycountry["videos"], video)
 
-
-# Se agrega un mapentry
-def addCategory(catalog, category):
-    if mp.contains(catalog["category"], category['name']) is False:
-        temp = newCategory(category['name'], category['id'])
-        mp.put(catalog["category"], me.getKey(temp), me.getValue(temp))
+def addVideoCategoryMap(catalog, category, video):
+    categories_ = catalog["categories"]
+    categoryin = mp.contains(categories_, category)
+    if categoryin:
+        entry = mp.get(categories_, category)
+        keycategory = me.getValue(entry)
+    else:
+        keycategory = newCategoryID(category)
+        mp.put(categories_, category, keycategory)
+    lt.addLast(keycategory["videos"], video)
 
 
 # Funciones para creacion de datos, se agerga un mapentry
 def newCategory(name, id):
-    # category = {'id': name, 'name': id}
-    category = me.newMapEntry(name, id)
+    category = me.newMapEntry(name.strip().lower(), id)
     return category
+
+def newCountry(country):
+    country = {"country":country, 
+               "videos":lt.newList("ARRAY_LIST", cmpVideosByVideoID)}
+    return country
+
+def newCategoryID(categoryID):
+    country = {"category":categoryID, 
+               "videos":lt.newList("ARRAY_LIST", cmpVideosByVideoID)}
+    return country
 
 
 # Funciones de consulta
@@ -114,30 +129,22 @@ def getCategory_ID(catalog, category_name):
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
-    # tamaño = me.getValue(mp.get(catalog["country"], country))
-    # print(lt.size(tamaño))
-    videos = catalog['videos']
-    templist = lt.newList()
-    # Organizo la lista por views para encontrar mas rapido los 4 mejores.
-    sorted_videos = sortVideos(videos, 4)
-    cat_id = getCategory_ID(catalog, category_name)
-    i = 0
-    for video in lt.iterator(videos):
-        element = lt.getElement(sorted_videos, video)
-        if element["country"].lower() == country.lower() and cat_id == element["category_id"]:
+    entry = mp.get(catalog["country"], country.strip().lower())
+    dos = me.getValue(entry)
+    reduced_list = dos["videos"]
+    cat_id = getCategory_ID(catalog, category_name.strip().lower())
+    templist = lt.newList("ARRAY_LIST")
+    for element in lt.iterator(reduced_list):
+        if element["country"].strip().lower() == country.strip().lower() and cat_id == element["category_id"]:
             lt.addLast(templist, element)
-            i += 1
-            if i == 4:
-                return templist
+    sorted_videos = sortVideos(templist, 4)
+    return sorted_videos
 
 
 def FindTrendVideoByCountry(catalog, country):
-    videos_list = catalog['videos']
-    reduced_list = lt.newList("ARRAY_LIST")
-    for element in range(1, lt.size(videos_list)+1):
-        thing = lt.getElement(videos_list, element)
-        if ((thing["country"]).strip()).lower() == country.strip().lower():
-            lt.addLast(reduced_list, thing)
+    entry = mp.get(catalog["country"], country.strip().lower())
+    dos = me.getValue(entry)
+    reduced_list = dos["videos"]
     print(lt.size(reduced_list))
     sorted_final_list = merg.sort(reduced_list, cmpVideosByVideoID)
     final_element = ""
@@ -163,13 +170,10 @@ def FindTrendVideoByCountry(catalog, country):
 
 
 def FindTrendVideoByCategory(catalog, category_name):
-    videos_list = catalog['videos']
-    reduced_list = lt.newList("ARRAY_LIST")
-    category = getCategory_ID(catalog, category_name)
-    for element in range(1, lt.size(videos_list)+1):
-        thing = lt.getElement(videos_list, element)
-        if thing["category_id"] == category:
-            lt.addLast(reduced_list, thing)
+    cat_id = getCategory_ID(catalog, category_name)
+    entry = mp.get(catalog["categories"], cat_id)
+    dos = me.getValue(entry)
+    reduced_list = dos["videos"]
     print(lt.size(reduced_list))
     sorted_final_list = merg.sort(reduced_list, cmpVideosByVideoID)
     final_element = ""
@@ -197,16 +201,13 @@ def FindTrendVideoByCategory(catalog, category_name):
 
 
 def FindMostLikedByTag(catalog, tag, country, elements):    
-    videos = catalog["videos"]
-    country_list = lt.newList("ARRAY_LIST")
-    for element in range(1, lt.size(videos)+1):
-        video = lt.getElement(videos, element)
-        if video["country"] == country:
-            lt.addLast(country_list, video)
-    print(lt.size(country_list))
+    entry = mp.get(catalog["country"], country.strip().lower())
+    dos = me.getValue(entry)
+    reduced_list = dos["videos"]
+    print(lt.size(reduced_list))
     tag_list = lt.newList("ARRAY_LIST")
-    for element in range(1, lt.size(country_list)+1):
-        video = lt.getElement(country_list, element)
+    for element in range(1, lt.size(reduced_list)+1):
+        video = lt.getElement(reduced_list, element)
         yes = video["tags"].split("|")
         for sub_element in yes:
             if sub_element.lower().find(tag) != -1:

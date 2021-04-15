@@ -24,8 +24,13 @@ import sys
 import config as cf
 import model
 import csv
+import time
+import tracemalloc
 default_limit = 1000
 sys.setrecursionlimit(default_limit*10)
+
+
+
 
 """
 El controlador se encarga de mediar entre la vista y el modelo.
@@ -40,14 +45,27 @@ def initArrayCatalog():
 
 # Funciones para la carga de datos
 
-
 def loadData(catalog):
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
     loadVideos(catalog)
     loadCategoryID(catalog)
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+
+    return delta_time, delta_memory
 
 
 def loadVideos(catalog):
-    videosfile = cf.data_dir + 'videos-small.csv'
+    videosfile = cf.data_dir + 'videos-large.csv'
     input_file = csv.DictReader(open(videosfile, encoding='utf-8'))
     for video in input_file:
         model.addVideo(catalog, video)
@@ -73,16 +91,102 @@ def sortVideos(catalog, size, alg):
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
     print(category_name, country)
-    return model.getVideosByCategoryAndCountry(catalog, category_name, country, numvid)
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+    answer = model.getVideosByCategoryAndCountry(catalog, category_name, country, numvid)
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+
+    return answer, delta_time, delta_memory
 
 
 def FindTrendVideoByCountry(catalog, country):
-    return model.FindTrendVideoByCountry(catalog, country)
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+    answer = model.FindTrendVideoByCountry(catalog, country)
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+
+    return answer, delta_time, delta_memory
 
 
 def FindTrendVideoByCategory(catalog, category):
-    return model.FindTrendVideoByCategory(catalog, category)
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+    answer = model.FindTrendVideoByCategory(catalog, category)
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+
+    return answer, delta_time, delta_memory
 
 
 def FindMostLikedByTag(catalog, tag, country, elements):
-    return model.FindMostLikedByTag(catalog, tag, country, elements)
+    delta_time = -1.0
+    delta_memory = -1.0
+
+    tracemalloc.start()
+    start_time = getTime()
+    start_memory = getMemory()
+    answer = model.FindMostLikedByTag(catalog, tag, country, elements)
+    stop_memory = getMemory()
+    stop_time = getTime()
+    tracemalloc.stop()
+
+    delta_time = stop_time - start_time
+    delta_memory = deltaMemory(start_memory, stop_memory)
+
+    return answer, delta_time, delta_memory
+
+
+def getTime():
+    """
+    devuelve el instante tiempo de procesamiento en milisegundos
+    """
+    return float(time.perf_counter()*1000)
+
+
+def getMemory():
+    """
+    toma una muestra de la memoria alocada en instante de tiempo
+    """
+    return tracemalloc.take_snapshot()
+
+
+def deltaMemory(start_memory, stop_memory):
+    """
+    calcula la diferencia en memoria alocada del programa entre dos
+    instantes de tiempo y devuelve el resultado en bytes (ej.: 2100.0 B)
+    """
+    memory_diff = stop_memory.compare_to(start_memory, "filename")
+    delta_memory = 0.0
+
+    # suma de las diferencias en uso de memoria
+    for stat in memory_diff:
+        delta_memory = delta_memory + stat.size_diff
+    # de Byte -> kByte
+    delta_memory = delta_memory/1024.0
+    return delta_memory
