@@ -85,12 +85,20 @@ def newCategory(name, id):
 
 def getCategory_ID(catalog, category_name):
     categories = catalog['category']
-    for element in range(1, lt.size(categories)+1):
-        element_1 = lt.getElement(categories, element)
-        if ((element_1["name"]).strip(" ")).lower() == (category_name.strip(" ")).lower():
-            return element_1["id"]
-
-
+    # Lista de los nombres de categoria
+    list1 = mp.valueSet(categories)
+    # Variable para el while
+    ver = True
+    i = 0
+    # El while te da la posicion en que estaria el nombre de la categoria (value)
+    while ver:
+        if category_name.lower() == list1[i]:
+            pos = i
+            ver = False
+        i += 1
+    # Esa posicion es la misma que el id de la categoria (key)
+    list2 = mp.keySet(categories)
+    return list2[pos]
 
 
 def getVideosByCategoryAndCountry(catalog, category_name, country,  numvid):
